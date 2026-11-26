@@ -5,603 +5,229 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics.pairwise import cosine_similarity
 from html import escape
 
+st.set_page_config(page_title="The Fragrance Atelier", layout="wide")
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:wght@400;500;700&display=swap');
 
-
-/* =========================================
-   1. COLOR PALETTE & GENERAL STYLING
-   ========================================= */
-
-:root {
+.stApp {
     --forest: #030D07;
     --plum: #301224;
     --button-plum: #6E214A;
     --rose: #C47A99;
     --ivory: #EDEBE4;
     --cream: #EDDEC5;
-}
-
-.stApp {
-    background-color: var(--forest);
+    --line: #C47A9960;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(236, 187, 120, 0.13), transparent 700px),
+        #100E0B;
     color: var(--ivory);
 }
 
-html, body, .stApp,
-[data-testid="stWidgetLabel"],
-[data-testid="stMarkdownContainer"],
-button, input, p, label {
-    font-family: 'DM Sans', sans-serif !important;
+.stApp, .stApp p, .stApp input, .stApp button {
+    font-family: 'DM Sans', sans-serif;
 }
 
-h1, h2, h3 {
-    font-family: 'Cormorant Garamond', Georgia, serif !important;
-    color: var(--ivory);
+.stApp h1, .stApp h2, .stApp h3 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
     font-weight: 600;
+    color: var(--ivory);
 }
 
-.block-container {
-    max-width: 1120px;
-    padding-top: 2.5rem;
-    padding-bottom: 4rem;
-}
-
-
-/* =========================================
-   2. HOMEPAGE HERO
-   ========================================= */
+.stApp p { color: var(--cream); }
+.stApp [data-testid="stHeader"] { background: transparent; }
+.block-container { max-width: 1080px; padding: 4.5rem 2rem; }
 
 .hero-frame {
     position: relative;
-    max-width: 950px;
-    margin: 10px auto 48px;
-    padding: 65px 36px;
-
-    background: transparent;
-    border: 1px solid var(--rose);
-    outline: 1px solid rgba(196,122,153,0.35);
-    outline-offset: -10px;
-    border-radius: 10px;
-
+    isolation: isolate;
+    overflow: hidden;
     text-align: center;
-    box-sizing: border-box;
+    background:
+        radial-gradient(ellipse at 50% 110%, var(--plum), transparent 75%),
+        radial-gradient(ellipse at 50% 0%, rgba(236, 187, 120, 0.16), transparent 72%),
+        #15120E;
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
+    padding: clamp(3rem, 8vw, 6rem) 1.25rem;
 }
 
-.hero-kicker {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    letter-spacing: 0.28em;
+.hero-frame::before, .hero-frame::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 44%;
+    aspect-ratio: 1 / 1.4;
+    bottom: -65%;
+    border: 1px solid var(--line);
+    border-radius: 50% 50% 0 0;
+}
+
+.hero-frame::before { left: -15%; transform: rotate(25deg); }
+.hero-frame::after { right: -15%; transform: rotate(-25deg); }
+
+.hero-kicker, .brand-name, .notes-label {
+    color: var(--rose);
     text-transform: uppercase;
-    color: var(--cream);
-    margin-bottom: 18px;
+    letter-spacing: .14em;
+    font-size: .75rem;
+    font-weight: 700;
 }
 
 .hero-frame h1 {
-    font-family: 'Cormorant Garamond', Georgia, serif !important;
-    font-size: clamp(48px, 7vw, 78px) !important;
-    font-weight: 600;
-    line-height: 1.05;
-    margin: 0 0 18px !important;
-    color: var(--ivory);
-    text-align: center;
-}
-
-.hero-subtext,
-.hero-frame p {
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 17px !important;
-    line-height: 1.6;
-    color: var(--cream);
-    text-align: center;
-    margin: 0 !important;
-}
-
-
-/* =========================================
-   3. HOMEPAGE SECTION LABELS
-   ========================================= */
-
-.section-label {
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 12px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    text-align: center;
-    color: var(--rose);
-
-    margin: 12px auto 30px;
-}
-
-
-/* =========================================
-   4. HOMEPAGE DISCOVERY OPTIONS
-   ========================================= */
-
-.scent-choice {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-
-    gap: 12px;
-    margin: 0 auto 20px;
+    font-size: clamp(3rem, 8vw, 6.25rem);
+    line-height: .94;
+    letter-spacing: -.04em;
+    margin: 1.25rem 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
-.scent-choice h3 {
-    font-family: 'Cormorant Garamond', Georgia, serif !important;
-    font-size: 34px !important;
-    font-weight: 600 !important;
-    line-height: 1.15 !important;
+.hero-frame em { display: block; color: #e6a9c0; font-weight: 500; }
+.hero-frame p { max-width: 27rem; margin: 0 auto; }
+.st-key-discovery { margin-top: .5rem; }
 
-    width: 100%;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    text-align: center !important;
+.st-key-perfume_choice, .st-key-notes_choice, .perfume-card {
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: linear-gradient(145deg, var(--plum), #1a151a);
+    padding: clamp(1rem, 4vw, 1.75rem);
 }
 
-.scent-choice p {
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 16px !important;
-    line-height: 1.6 !important;
+.scent-choice h2 { font-size: clamp(1.85rem, 4vw, 2.5rem); padding: 0; }
+.scent-choice p { margin-bottom: .25rem; }
 
-    color: var(--cream);
-    width: 100%;
-    max-width: 340px !important;
-    height: auto !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    text-align: center !important;
-}
-
-/* Decorative divider between discoveries */
-.choice-divider {
-    width: 90px;
-    height: 1px;
-    background-color: var(--rose);
-    margin: 36px auto 42px;
-}
-
-
-/* =========================================
-   5. BUTTON STYLING
-   ========================================= */
-
-.stButton button {
-    background-color: var(--button-plum) !important;
-    color: var(--ivory) !important;
-
-    border: 1px solid var(--rose) !important;
-    border-radius: 999px !important;
-
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 15px !important;
-    font-weight: 500 !important;
-
-    min-height: 50px;
-    padding: 10px 26px !important;
-
-    white-space: nowrap;
-    transition: background-color 0.2s ease,
-                border-color 0.2s ease,
-                transform 0.2s ease;
-}
-
-.stButton button:hover {
-    background-color: var(--plum) !important;
-    color: var(--ivory) !important;
-    border-color: var(--cream) !important;
-    transform: translateY(-2px);
-}
-
-.stButton button:focus {
-    color: var(--ivory) !important;
-    border-color: var(--rose) !important;
-}
-
-/* Button text shouldn't truncate */
-.stButton button p {
-    font-family: 'DM Sans', sans-serif !important;
-    white-space: nowrap !important;
-}
-
-
-/* =========================================
-   6. DECORATIVE DIVIDER & EXPLANATION
-   ========================================= */
-
-.ornament-divider {
-    text-align: center;
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: 25px;
-    color: var(--rose);
-    margin: 46px auto 22px;
-}
-
-.how-it-works {
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 15px;
-    line-height: 1.8;
-    text-align: center;
-    color: var(--cream);
-
-    max-width: 680px;
-    margin: 0 auto 25px;
-}
-
-
-/* =========================================
-   7. PERFUME & NOTES DROPDOWNS
-   ========================================= */
-
-[data-baseweb="select"] * {
-    font-family: 'DM Sans', sans-serif !important;
-}
-
-div[data-baseweb="select"] > div {
-    background-color: #302D2B !important;
-    border: 1px solid #56504E !important;
-    border-radius: 12px !important;
-}
-
-div[data-baseweb="select"] input {
-    color: var(--ivory) !important;
-    -webkit-text-fill-color: var(--ivory) !important;
-}
-
-div[data-baseweb="select"] svg {
-    fill: var(--ivory) !important;
-}
-
-
-/* =========================================
-   8. STANDARD FRAGRANCE RESULT CARDS
-   ========================================= */
-
-.perfume-card {
-    background-color: var(--plum);
+.stApp .stButton button {
+    background: var(--button-plum);
+    color: var(--ivory);
     border: 1px solid var(--rose);
-    border-radius: 16px;
-
-    box-sizing: border-box;
-    width: 100%;
-    height: 245px;
-    overflow: hidden;
-
-    padding: 20px;
-
-    display: grid;
-    grid-template-rows: 36px minmax(65px, 1fr) auto auto;
-    row-gap: 6px;
-    align-items: stretch;
-
-    margin: 0 0 14px;
+    border-radius: .65rem;
+    min-height: 2.85rem;
+    padding: .5rem 1rem;
 }
+
+.stApp .stButton button p { color: inherit; }
+.stApp .stButton button:hover { background: var(--rose); color: var(--forest); }
+
+.stApp .stButton button:focus-visible,
+.stApp [data-baseweb="select"]:focus-within {
+    outline: 2px solid var(--cream);
+    outline-offset: 3px;
+}
+
+.stApp .st-key-back_perfume button, .stApp .st-key-back_notes button {
+    background: transparent;
+    border-color: var(--line);
+}
+
+.stApp [data-baseweb="select"] > div {
+    background: #151c17;
+    border-color: var(--line);
+    border-radius: .65rem;
+    color: var(--ivory);
+}
+
+.stApp [data-baseweb="select"] input {
+    color: var(--ivory);
+    -webkit-text-fill-color: var(--ivory);
+}
+
+.stApp [data-baseweb="select"] svg { fill: var(--ivory); }
+
+.perfume-card { overflow-wrap: anywhere; }
 
 .card-header {
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
-    gap: 10px;
-    width: 100%;
-    min-width: 0;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
 }
 
-.brand-name {
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.35;
-    color: var(--ivory);
-
-    overflow-wrap: anywhere;
-}
-
-/* Perfume name */
-.perfume-card h2 {
-    font-family: 'Cormorant Garamond', Georgia, serif !important;
-    font-size: clamp(25px, 2.5vw, 34px) !important;
-    font-weight: 600 !important;
-    line-height: 1.1 !important;
-    color: var(--ivory);
-
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow-wrap: anywhere;
-    align-self: center;
-}
-
-/* Similarity & rating */
-.perfume-card p {
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 14px !important;
-    line-height: 1.45 !important;
-    color: var(--ivory);
-
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* First-ranked fragrance */
 .top-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    background-color: var(--rose);
-    color: var(--plum);
-
+    background: var(--rose);
+    color: var(--forest);
     border-radius: 999px;
-    padding: 5px 9px;
-
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 10px;
+    padding: .2rem .65rem;
+    font-size: .7rem;
     font-weight: 700;
-    letter-spacing: 0.03em;
-    white-space: nowrap;
 }
 
+.perfume-card h2 { font-size: 2.1rem; line-height: 1; padding: .55rem 0 .9rem; }
+.perfume-card .card-stats p { margin: .15rem 0; font-size: .88rem; }
+.shared-notes { border-top: 1px solid var(--line); }
+.note-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .4rem; font-size: .84rem; }
+.other-notes-label { margin-top: .9rem; }
 
-
-/* =========================================
-   10. MISCELLANEOUS
-   ========================================= */
-
-[data-testid="stDataFrame"] {
-    font-family: 'DM Sans', sans-serif !important;
-}
-
-/* Streamlit borders (where used) */
-div[data-testid="stVerticalBlockBorderWrapper"] {
-    border-radius: 16px;
-}
-
-
-/* =========================================
-   11. RESPONSIVE STYLING
-   ========================================= */
-
-@media (max-width: 700px) {
-
-    .block-container {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-
-    .hero-frame {
-        padding: 44px 18px;
-    }
-
-    .hero-frame h1 {
-        font-size: clamp(40px, 9vw, 58px) !important;
-    }
-
-    .scent-choice h3 {
-        font-size: 30px !important;
-    }
-
-    .scent-choice p {
-        max-width: 300px !important;
-    }
-
-    .perfume-card {
-        height: auto;
-        min-height: 245px;
-    }
-
-    .perfume-card.has-notes {
-        height: auto;
-        min-height: 380px;
-        grid-template-rows:
-            36px
-            minmax(65px, 1fr)
-            auto
-            auto
-            minmax(132px, auto);
-    }
-
-    .perfume-card h2 {
-        font-size: 28px !important;
-    }
-
-    .perfume-card.has-notes .shared-notes {
-        overflow: visible;
-    }
-
-    .how-it-works {
-        padding: 0 12px;
-    }
-}
-
-/* =================================
-   SELECTION TEXT
-   ================================= */
-
-[data-testid="stWidgetLabel"] p {
-    font-size: 17px !important;
-}
-
-div[data-baseweb="select"] input,
-div[data-baseweb="select"] [role="combobox"] {
-    font-size: 18px !important;
-}
-
-div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {
-    font-size: 18px !important;
-}
-
-/* Dropdown menu options */
-[role="listbox"] [role="option"] {
-    font-size: 17px !important;
-}
-
-
-/* =================================
-   FRAGRANCE CARD TYPOGRAPHY
-   ================================= */
-
-.perfume-card h2 {
-    font-size: 28px !important;
-    line-height: 1.15 !important;
-}
-
-.perfume-card .brand-name {
-    font-size: 16px !important;
-}
-
-.perfume-card p {
-    font-size: 15px !important;
-    line-height: 1.5 !important;
-}
-
-
-/* =========================================
-   UNIFIED RECOMMENDATION CARD DESIGN
-   Applies to BOTH recommendation systems
-   ========================================= */
-
-/* Matching card dimensions */
-.perfume-card.has-notes,
-.perfume-card.notes-discovery-card {
-    display: flex !important;
-    flex-direction: column !important;
-    height: auto !important;
-    min-height: 340px !important;
-    padding: 22px !important;
-    gap: 0 !important;
-    overflow: visible !important;
-    box-sizing: border-box;
-}
-
-/* Brand name and badge */
-.perfume-card.has-notes .card-header,
-.perfume-card.notes-discovery-card .card-header {
+.fragrance-family-tags {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    min-height: 30px;
-    margin: 0 0 12px !important;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: .4rem 0 0;
 }
 
-/* Perfume titles */
-.perfume-card.has-notes h2,
-.perfume-card.notes-discovery-card h2 {
-    font-size: 28px !important;
-    line-height: 1.15 !important;
-    min-height: 66px;
-    margin: 0 0 12px !important;
-    padding: 0 !important;
-    align-self: stretch;
+.fragrance-family-tags:empty { display: none; }
+
+.fragrance-family-tag {
+    display: inline-block;
+    padding: 5px 11px;
+    border: 1px solid var(--rose);
+    border-radius: 20px;
+    background: #4A1C35;
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
 }
 
-/* Similarity and rating */
-.perfume-card.has-notes .card-stats,
-.perfume-card.notes-discovery-card .card-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* Notes section: identical positioning */
-.perfume-card.has-notes .shared-notes,
-.perfume-card.notes-discovery-card .shared-notes {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-
-    margin: 18px 0 0 !important;
-    padding: 14px 0 0 !important;
-
-    border-top: 1px solid rgba(196,122,153,0.45);
-    overflow: visible !important;
-}
-
-/* Both note section headings */
-.shared-notes .notes-label {
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    letter-spacing: 1.2px !important;
-    line-height: 1.4 !important;
-    text-transform: uppercase;
-
-    color: #EDDEC5;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* Space before second note category */
-.shared-notes .other-notes-label {
-    margin-top: 10px !important;
-}
-
-/* Pink note tags */
-.shared-notes .note-tags {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: center;
-    align-content: flex-start;
-    gap: 7px !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100%;
-}
-
-/* Individual tags */
-.shared-notes .note-tag {
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid #C47A99;
+.note-tag, .note-more {
+    background: #6E214A52;
+    color: var(--ivory);
     border-radius: 999px;
-    padding: 5px 10px;
-
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 11px !important;
-    line-height: 1.35;
-    color: #EDEBE4;
-
-    max-width: 100%;
-    white-space: normal;
-    overflow-wrap: anywhere;
+    padding: .3rem .65rem;
 }
 
-/* +X more indicator */
-.shared-notes .note-more {
-    display: inline-flex;
-    align-items: center;
-
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 11px !important;
-    color: #C47A99;
-    padding: 5px 2px;
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+    gap: 1.25rem 2rem;
+    margin-top: .5rem;
 }
 
-/* Let long names and notes expand on mobile */
-@media (max-width: 700px) {
-    .perfume-card.has-notes,
-    .perfume-card.notes-discovery-card {
-        height: auto !important;
-        min-height: 340px !important;
+.results-grid .perfume-card {
+    box-sizing: border-box;
+    height: auto;
+    margin: 0;
+    padding: 1.5rem;
+    overflow: visible;
+}
+
+.results-grid .card-stats { margin-top: .75rem; }
+
+.results-grid .shared-notes {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+}
+
+@media (max-width: 640px) {
+    .block-container { padding: 3.5rem 1rem 2rem; }
+
+    .st-key-discovery [data-testid="stHorizontalBlock"] {
+        flex-direction: column;
     }
 
-    .perfume-card.has-notes h2,
-    .perfume-card.notes-discovery-card h2 {
-        min-height: 0;
+    .st-key-discovery [data-testid="stColumn"] {
+        width: 100%;
+        flex: auto;
+    }
+
+    .results-grid {
+        grid-template-columns: minmax(0, 1fr);
+        grid-auto-rows: auto;
+        gap: 1rem;
     }
 }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -609,8 +235,8 @@ div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {
 @st.cache_data
 def load_fragrance_data():
     df = pd.read_csv(
-        "data/fragrances_active_cleaned_v4.csv",
-        encoding="utf-8"
+        "data/fragrances_active_cleaned_v5.csv",
+        encoding="utf-8",
     ).reset_index(drop=True)
     df["All_Notes"] = df["All_Notes"].fillna("").str.lower().apply(
         lambda x: [note.strip() for note in x.split(",") if note.strip()]
@@ -626,68 +252,46 @@ PRICE_DISCLAIMER = (
     "Prices are reference estimates in USD and may vary by retailer, "
     "bottle size, and promotions."
 )
+
 if "page" not in st.session_state:
     st.session_state.page = "home"
-# Homepage
+
 if st.session_state.page == "home":
-
     st.markdown("""
-    <div class="hero-frame">
-        <div class="hero-kicker">THE FRAGRANCE ATELIER</div>
-        <h1>Find your perfect scent.</h1>
-        <p class="hero-subtext">
-            A little fragrance magic, made just for you.
-        </p>
-    </div>
+    <section class="hero-frame">
+        <h1>Find your <em>perfect scent.</em></h1>
+        <p>Discover a new favorite through the perfumes and notes you already love.</p>
+    </section>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="section-label">TWO WAYS TO DISCOVER</div>', unsafe_allow_html=True)
+    with st.container(key="discovery"):
+        perfume_col, notes_col = st.columns(2, gap="medium")
 
-    
-    # First discovery option
-    st.markdown("""
-    <div class="scent-choice">
-        <h3>Your Fragrance Twin</h3>
-        <p>Find your next favorite based on a perfume you already love.</p>
-    </div>
-    """, unsafe_allow_html=True)
+        with perfume_col, st.container(key="perfume_choice"):
+            st.markdown(
+                '<div class="scent-choice"><h2>Your Fragrance Twin</h2>'
+                '<p>Start with a perfume you love and find fragrances with similar notes.</p></div>',
+                unsafe_allow_html=True,
+            )
+            if st.button(
+                "Explore by Perfume →", key="home_perfume", use_container_width=True
+            ):
+                st.session_state.page = "perfume"
+                st.rerun()
 
-    with st.container(horizontal=True, horizontal_alignment="center"):
-        if st.button("Explore by Perfume", key="home_perfume"):
-            st.session_state.page = "perfume"
-            st.rerun()
-
-    st.markdown('<div class="choice-divider"></div>', unsafe_allow_html=True)
-
-    # Second discovery option
-    st.markdown("""
-    <div class="scent-choice">
-        <h3>Discover by Notes</h3>
-        <p>Find beautiful fragrances using the notes you adore.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    with st.container(horizontal=True, horizontal_alignment="center"):
-        if st.button("Explore by Notes", key="home_notes"):
-            st.session_state.page = "notes"
-            st.rerun()
-
-
-
-    st.markdown('<div class="ornament-divider">✦</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="section-label">HOW THE MAGIC WORKS</div>', unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="how-it-works">
-        Explore 12,000+ fragrances through their scent notes.
-        Our recommendation models compare fragrance compositions
-        to help you discover perfumes that match your taste.
-    </div>
-    """, unsafe_allow_html=True)
+        with notes_col, st.container(key="notes_choice"):
+            st.markdown(
+                '<div class="scent-choice"><h2>Discover by Notes</h2>'
+                '<p>Choose up to five notes and explore fragrances that feature them.</p></div>',
+                unsafe_allow_html=True,
+            )
+            if st.button(
+                "Explore by Notes →", key="home_notes", use_container_width=True
+            ):
+                st.session_state.page = "notes"
+                st.rerun()
 
     st.stop()
-
 
 
 if st.session_state.page == "perfume":
@@ -697,10 +301,10 @@ if st.session_state.page == "perfume":
 
     st.subheader("Find Your Fragrance Twin")
     st.caption(
-    "Find fragrances with notes similar to your favorite perfume. "
-    "Higher matches mean more notes in common."
-)
-    
+        "Find fragrances with notes similar to your favorite perfume. "
+        "Higher matches mean more notes in common."
+    )
+
     selected_index = st.selectbox(
         "🔎 Search for a perfume you love",
         options=df.index[df["Perfume"].notna()].tolist(),
@@ -720,220 +324,184 @@ if st.session_state.page == "perfume":
             selected_perfume_notes = set(df.loc[selected_index, "All_Notes"])
             scores = cosine_similarity(
                 note_matrix[selected_index:selected_index + 1],
-                note_matrix
+                note_matrix,
             )[0]
             ranked_indices = np.argsort(scores)[::-1]
             ranked_indices = ranked_indices[ranked_indices != selected_index]
             top_four = ranked_indices[:4]
+
             recommendations = df.iloc[top_four][
-                ["Perfume", "Brand", "Rating Value", "Price_USD"]
+                ["Perfume", "Brand", "Rating Value", "Price_USD", "Fragrance_Families"]
             ].copy()
             recommendations["Similarity Score"] = scores[top_four].round(2)
 
             st.subheader("Your Fragrance Matches")
-
-            col1, col2 = st.columns(2, gap="medium")
+            cards = []
 
             for i, (perfume_index, perfume) in enumerate(recommendations.iterrows()):
-                with (col1 if i % 2 == 0 else col2):
+                recommended_notes = set(df.loc[perfume_index, "All_Notes"])
+                shared_notes = sorted(selected_perfume_notes & recommended_notes)
+                other_notes = sorted(recommended_notes - selected_perfume_notes)
 
-                    recommended_notes = set(df.loc[perfume_index, "All_Notes"])
+                visible_notes = shared_notes[:3]
+                notes_html = " ".join(
+                    f'<span class="note-tag">{escape(note.replace("-", " ").title())}</span>'
+                    for note in visible_notes
+                )
+                remaining = len(shared_notes) - len(visible_notes)
+                if remaining > 0:
+                    notes_html += f' <span class="note-more">+{remaining} more</span>'
 
-                    shared_notes = sorted(
-                        selected_perfume_notes & recommended_notes
-                    )
-                    other_notes = sorted(recommended_notes - selected_perfume_notes)
-                
-                
-                    visible_notes = shared_notes[:3]
+                visible_other = other_notes[:3]
+                other_html = " ".join(
+                    f'<span class="note-tag">{escape(note.replace("-", " ").title())}</span>'
+                    for note in visible_other
+                )
+                other_remaining = len(other_notes) - len(visible_other)
+                if other_remaining > 0:
+                    other_html += f' <span class="note-more">+{other_remaining} more</span>'
 
-                    notes_html = " ".join(
-                        f'<span class="note-tag">'
-                        f'{escape(note.replace("-", " ").title())}'
-                        f'</span>'
-                        for note in visible_notes
-                    )
+                badge = '<div class="top-badge">#1 MATCH</div>' if i == 0 else ''
+                brand = escape(str(perfume["Brand"]).replace("-", " ").title())
+                name = escape(str(perfume["Perfume"]).replace("-", " ").title())
+                family_value = perfume.get("Fragrance_Families", "")
+                family_html = "".join(
+                    f'<span class="fragrance-family-tag">{escape(family.strip())}</span>'
+                    for family in str(family_value).split(",")
+                    if family.strip() and family.strip().lower() != "nan"
+                )
 
-                    remaining = len(shared_notes) - len(visible_notes)
+                similarity = f'{float(perfume["Similarity Score"]) * 100:.0f}%'
+                rating_value = pd.to_numeric(perfume["Rating Value"], errors="coerce")
+                rating = f"{rating_value:.2f} / 5" if pd.notna(rating_value) else "Not rated"
 
-                    if remaining > 0:
-                        notes_html += (
-                            f' <span class="note-more">+{remaining} more</span>'
-                        )
+                card_html = (
+                    '<div class="perfume-card has-notes">'
+                    '<div class="card-header"><div>'
+                    f'<span class="brand-name">{brand}</span>'
+                    f'<div class="fragrance-family-tags">{family_html}</div>'
+                    f'</div>{badge}</div>'
+                    f'<h2>{name}</h2>'
+                    '<div class="card-stats">'
+                    f'<p>Similarity: {similarity}</p>'
+                    f'<p>Rating: {rating}</p>'
+                    f'<p>Reference price: ${float(perfume["Price_USD"]):,.2f}</p>'
+                    '</div>'
+                    '<div class="shared-notes">'
+                    '<div class="notes-label">SHARED NOTES</div>'
+                    f'<div class="note-tags">{notes_html}</div>'
+                    '<div class="notes-label other-notes-label">OTHER NOTES TO EXPLORE</div>'
+                    f'<div class="note-tags">{other_html or "No additional notes"}</div>'
+                    '</div></div>'
+                )
+                cards.append(card_html)
 
-
-                    # Show up to 3 additional notes
-                    visible_other = other_notes[:3]
-
-                    other_html = " ".join(
-                        f'<span class="note-tag">'
-                        f'{escape(note.replace("-", " ").title())}'
-                        f'</span>'
-                        for note in visible_other
-                    )
-
-                    other_remaining = len(other_notes) - len(visible_other)
-
-                    if other_remaining > 0:
-                        other_html += (
-                            f' <span class="note-more">'
-                            f'+{other_remaining} more</span>'
-                        )
-
-                    badge = '<div class="top-badge">#1 MATCH</div>' if i == 0 else ''
-
-                    brand = escape(str(perfume["Brand"]).replace("-", " ").title())
-                    name = escape(str(perfume["Perfume"]).replace("-", " ").title())
-                    similarity = f'{float(perfume["Similarity Score"]) * 100:.0f}%'
-                    rating_value = pd.to_numeric(
-                        perfume["Rating Value"],
-                        errors="coerce")
-                    rating = (
-                        f"{rating_value:.2f} / 5"
-                        if pd.notna(rating_value)
-                        else "Not rated")
+            st.markdown(
+                '<div class="results-grid">' + "".join(cards) + "</div>",
+                unsafe_allow_html=True,
+            )
 
 
-                    card_html = (
-                        f'<div class="perfume-card has-notes">'
-                        f'<div class="card-header">'
-                        f'<span class="brand-name">{brand}</span>'
-                        f'{badge}'
-                        f'</div>'
-                        f'<h2>{name}</h2>'
-                   
-                        f'<div class="card-stats">'
-                        f'<p>Similarity: {similarity}</p>'
-                        f'<p>Rating: {rating}</p>'
-                        f'<p>Reference price: ${float(perfume["Price_USD"]):,.2f}</p>'
-                        f'</div>'
-
-                    
-                        f'<div class="shared-notes">'
-                        f'<div class="notes-label">SHARED NOTES</div>'
-                        f'<div class="note-tags">{notes_html}</div>'
-                        f'<div class="notes-label other-notes-label">OTHER NOTES TO EXPLORE</div>'
-                        f'<div class="note-tags">{other_html or "No additional notes"}</div>'
-                        f'</div>'
-
-                        f'</div>'
-                    )
-
-                    st.markdown(card_html, unsafe_allow_html=True)
 if st.session_state.page == "notes":
-
     if st.button("← Back to Home", key="back_notes"):
         st.session_state.page = "home"
         st.rerun()
+
     st.subheader("Discover by Notes")
-    st.write(
+    st.caption(
         "Choose your favorite fragrance notes to discover "
-        "perfumes that match your preferences.")
+        "perfumes that match your preferences."
+    )
     selected_notes = st.multiselect(
         "Choose up to 5 fragrance notes",
         options=list(mlb.classes_),
-        max_selections=5)
+        max_selections=5,
+    )
     st.caption(PRICE_DISCLAIMER)
+
     if st.button("Find My Scent"):
         if not selected_notes:
             st.warning("Please select at least one fragrance note.")
-
         else:
             user_vector = mlb.transform([selected_notes])
-
-            note_scores = cosine_similarity(
-                user_vector,
-                note_matrix
-            )[0]
-
+            note_scores = cosine_similarity(user_vector, note_matrix)[0]
             ranked_notes = np.argsort(-note_scores, kind="stable")
             top_notes = ranked_notes[note_scores[ranked_notes] > 0][:4]
 
             note_recommendations = df.iloc[top_notes][
-                ["Perfume", "Brand", "Rating Value", "Price_USD"]
+                ["Perfume", "Brand", "Rating Value", "Price_USD", "Fragrance_Families"]
             ].copy()
-
-            note_recommendations["Similarity Score"] = (
-                note_scores[top_notes].round(2)
-            )
+            note_recommendations["Similarity Score"] = note_scores[top_notes].round(2)
 
             st.subheader("Your Personalized Fragrance Matches")
             st.caption(
-                "Similarity compares your selected notes with each perfume's "
-                "full note profile using cosine similarity. "
-                "A higher percentage indicates a closer note-based match, "
-                "not the likelihood that you'll enjoy the fragrance."
+                "Discover fragrances featuring your favorite notes. "
+                "Higher matches mean a closer match to your selections."
             )
-        
-            col1, col2 = st.columns(2, gap="medium")
 
+            cards = []
             for i, (perfume_index, perfume) in enumerate(note_recommendations.iterrows()):
-                with (col1 if i % 2 == 0 else col2):
-                
-                    # Notes found in this perfume
-                    perfume_notes = set(df.loc[perfume_index, "All_Notes"])
+                perfume_notes = set(df.loc[perfume_index, "All_Notes"])
+                matching_notes = sorted(set(selected_notes) & perfume_notes)
+                other_notes = sorted(perfume_notes - set(selected_notes))
 
-                    # Notes matching the user's selections
-                    matching_notes = sorted(set(selected_notes) & perfume_notes)
+                matching_html = " ".join(
+                    f'<span class="note-tag">{escape(note.replace("-", " ").title())}</span>'
+                    for note in matching_notes
+                )
 
-                    # Other notes found in this perfume
-                    other_notes = sorted(perfume_notes - set(selected_notes))
+                visible_other = other_notes[:3]
+                other_html = " ".join(
+                    f'<span class="note-tag">{escape(note.replace("-", " ").title())}</span>'
+                    for note in visible_other
+                )
+                remaining = len(other_notes) - len(visible_other)
+                if remaining > 0:
+                    other_html += f' <span class="note-more">+{remaining} more</span>'
 
-                    # Build matching-note tags
-                    matching_html = " ".join(
-                        f'<span class="note-tag">{escape(note.replace("-", " ").title())}</span>'
-                        for note in matching_notes
+                badge = '<div class="top-badge">#1 MATCH</div>' if i == 0 else ''
+                brand = escape(str(perfume["Brand"]).replace("-", " ").title())
+                name = escape(str(perfume["Perfume"]).replace("-", " ").title())
+                family_value = perfume.get("Fragrance_Families", "")
+                family_html = "".join(
+                    f'<span class="fragrance-family-tag">{escape(family.strip())}</span>'
+                    for family in str(family_value).split(",")
+                    if family.strip() and family.strip().lower() != "nan"
+                )
+
+                similarity = f'{float(perfume["Similarity Score"]) * 100:.0f}%'
+                rating_value = str(perfume["Rating Value"]).replace(",", ".")
+                try:
+                    rating = (
+                        f"{float(rating_value):.2f} / 5"
+                        if pd.notna(perfume["Rating Value"])
+                        else "Not rated"
                     )
+                except ValueError:
+                    rating = "Not rated"
 
-                    # Show up to 3 other notes
-                    visible_other = other_notes[:3]
+                card_html = (
+                    '<div class="perfume-card notes-discovery-card">'
+                    '<div class="card-header"><div>'
+                    f'<span class="brand-name">{brand}</span>'
+                    f'<div class="fragrance-family-tags">{family_html}</div>'
+                    f'</div>{badge}</div>'
+                    f'<h2>{name}</h2>'
+                    '<div class="card-stats">'
+                    f'<p>Similarity: {similarity}</p>'
+                    f'<p>Rating: {rating}</p>'
+                    f'<p>Reference price: ${float(perfume["Price_USD"]):,.2f}</p>'
+                    '</div>'
+                    '<div class="shared-notes">'
+                    '<div class="notes-label">MATCHES YOUR NOTES</div>'
+                    f'<div class="note-tags">{matching_html}</div>'
+                    '<div class="notes-label other-notes-label">OTHER NOTES TO EXPLORE</div>'
+                    f'<div class="note-tags">{other_html}</div>'
+                    '</div></div>'
+                )
+                cards.append(card_html)
 
-                    other_html = " ".join(
-                        f'<span class="note-tag">{escape(note.replace("-", " ").title())}</span>'
-                        for note in visible_other
-                    )
-
-                    remaining = len(other_notes) - len(visible_other)
-
-                    if remaining > 0:
-                        other_html += f' <span class="note-more">+{remaining} more</span>'
-
-
-                    badge = '<div class="top-badge">#1 MATCH</div>' if i == 0 else ''
-
-                    brand = escape(str(perfume["Brand"]).replace("-", " ").title())
-                    name = escape(str(perfume["Perfume"]).replace("-", " ").title())
-                    similarity = f'{float(perfume["Similarity Score"]) * 100:.0f}%'
-                    rating_value = str(perfume["Rating Value"]).replace(",", ".")
-                    try:
-                        rating = f"{float(rating_value):.2f} / 5" if pd.notna(perfume["Rating Value"]) else "Not rated"
-                    except ValueError:
-                        rating = "Not rated"
-
-                    
-                    card_html = (
-                        f'<div class="perfume-card notes-discovery-card">'
-                        f'<div class="card-header">'
-                        f'<span class="brand-name">{brand}</span>'
-                        f'{badge}'
-                        f'</div>'
-                        f'<h2>{name}</h2>'
-                        f'<div class="card-stats">'
-                        f'<p>Similarity: {similarity}</p>'
-                        f'<p>Rating: {rating}</p>'
-                        f'<p>Reference price: ${float(perfume["Price_USD"]):,.2f}</p>'
-                        f'</div>'
-                        f'<div class="shared-notes">'
-                        f'<div class="notes-label">MATCHES YOUR NOTES</div>'
-                        f'<div class="note-tags">{matching_html}</div>'
-                        f'<div class="notes-label other-notes-label">OTHER NOTES TO EXPLORE</div>'
-                        f'<div class="note-tags">{other_html}</div>'
-                        f'</div>'
-                        f'</div>'
-                    )
-
-
-                    st.markdown(card_html, unsafe_allow_html=True)
-
-                    
-
+            st.markdown(
+                '<div class="results-grid">' + "".join(cards) + "</div>",
+                unsafe_allow_html=True,
+            )
