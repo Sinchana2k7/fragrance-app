@@ -5,7 +5,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics.pairwise import cosine_similarity
 from html import escape
 
-st.set_page_config(page_title="The Fragrance Atelier", layout="wide")
+st.set_page_config(page_title="ScentScout", layout="wide")
 
 st.markdown("""
 <style>
@@ -259,10 +259,12 @@ if "page" not in st.session_state:
 if st.session_state.page == "home":
     st.markdown("""
     <section class="hero-frame">
+        <div class="hero-kicker">SCENTSCOUT</div>
         <h1>Find your <em>perfect scent.</em></h1>
         <p>Discover a new favorite through the perfumes and notes you already love.</p>
     </section>
     """, unsafe_allow_html=True)
+
 
     with st.container(key="discovery"):
         perfume_col, notes_col = st.columns(2, gap="medium")
